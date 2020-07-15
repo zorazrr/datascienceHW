@@ -1,0 +1,160 @@
+---
+title: "Lab 1 Problem Set"
+output:
+  github_document:
+    toc: true
+    toc_depth: 2
+---
+
+<br>
+<hr>
+<br>
+
+# Submission Instructions:
+
+Download the lab-one-problem-set.rmd file from GitHub and code your answers in that file. Rename the file netid_ps1 and save as a .rmd. Upload your problem set through the Assignments tab in Canvas by July 16th at 12PM. Remember that in an R Markdown file writing in the white space will be read as text, so you write responses to your questions in the white space.
+
+# Part A: Reviewing the basics
+
+The dataset we are working for this assignment is composed of a series of outcomes for black females, black males, white females, and white males by United States county. You will be asked to import and view the data, as well as run a series of summary statistics to examine relationships between these variables. Every variable will take two forms: `outcome_race_gender_n`, which provides the number of observations in that category, and `outcome_race_gender_mean`, which is the average of that outcome for that specific group. 
+
+NOTE: the use of black/white, male/female is NOT inclusive of all of races and genders. We limit the analysis to only these groups because of sample size limitations and current limitations in the collection of data. Additionally, we thank Opportunity Insights for access to their class materials and datasets, which this assignment is based on.
+
+Variables:
+
+| Variable | Description |
+| ----------- | ----------- |
+| `kfr` | Mean percentile rank (relative to other children born in the same year) in the national distribution of household income measured as mean earnings in 2014-15. |
+| `married` | Fraction of children who file their federal income tax return as “married filing jointly” or “married filing separate” in 2015 |
+| `has_dad` | Fraction of children who have a male claimer in the year they are linked to parents |
+| `has_mom` | Fraction of children who have a female claimer in the year they are linked to parents |
+| `two_par` | Fraction of children claimed by two people in the year they are linked to parents |
+| `teenbrth` | Fraction of women who grew up in the given tract who ever claimed a child who was born when they were between the ages of 13 and 19 as a dependent at any point |
+| `working` | Fraction of children with positive W-2 earnings in 2015 |
+| `proginc` | Fraction of children who receive public assistance income (among children who received the ACS at age 30+) |
+| `coll` | Fraction of children who have a four year college degree (among children who received ACS or 2000 Census long form at age 25+) |
+| `grad` | Fraction of children who have a graduate degree (among children who received the ACS or the 2000 long form at age 30+) |
+| `kfr_top01` | Probability of reaching the top 1% of the national household income distribution (among children born in the same year) in 2014-15 |
+| `lpov_nbh` | Fraction children who grew up in a given tract and end up living in a tract with a poverty rate of less than 10% (according to tract-level Census 2000 data) in adulthood. Tracts where children live as adults are defined as the tract of the last non-missing address observed on tax returns |
+| `staytract` | Fraction of individuals who live in one of their childhood Census tracts in adulthood |
+| `staycz` | Fraction of children who live in one of their childhood commuting zones in adulthood |
+| `stayhome` | Fraction of children who live at the same address as their parents in 2015 |
+
+## 1. Import `county_outcomes.csv`. You should have 154 variables and 2,819 observations
+
+```{r}
+setwd("~/Desktop/Cornell/lab-1-master")
+data <- read.csv("~/Desktop/Cornell/lab-1-master/county_outcomes.csv")
+```
+
+## 2. View your data by running at least 2 functions. Write 3-5 things you looked for to check your dataset to make sure it is ready for analysis
+- There are a lot of missing values, which could negatively effect our analysis 
+```{r}
+View(data)
+head(data)
+tail(data)
+sapply(X = data, FUN = function(x) sum(is.na(x)))
+```
+
+## 3. Compare mean income ranks between black females and white females for all counties in the United States (use `kfr_black_female_mean` and `kfr_white_female_mean`). Write 1-2 sentences summarizing your finding. HINT: your dataset represents the United States. Therefore, when we ask you to compare the mean for all counties in the United States, we're asking you to find the average for the entire dataset without subsetting.)
+- In the US, the mean of the mean income ranks from all counties of white female is higher than that of black female. 
+
+```{r}
+mean(data$kfr_black_female_mean, na.rm = TRUE)
+mean(data$kfr_white_female_mean, na.rm = TRUE)
+print("We probably should account for n ↓↓↓")
+sum (data$kfr_black_female_mean * data$kfr_black_female_n, na.rm = TRUE)/
+  sum(data$kfr_black_female_n, na.rm = TRUE)
+sum(data$kfr_white_female_mean * data$kfr_white_female_n, na.rm = TRUE)/
+  sum(data$kfr_white_female_n, na.rm = TRUE)
+```
+
+## 4. Run a correlation between any two outcomes you would like (e.g. `kfr_black_male_mean` and `coll_black_male_mean`). Test for significance. Write 1-2 sentences summarizing your finding.
+- Since the p-value is small (p-value < 2.2e-16), it is reasonable to conclude that there is a significant correlation between fraction of black male who have a four year college degree and mean percentile rank in the national distribution of household income: the higher the fraction is in a county, the higher the mean percentile rank is  
+- Correlation coefficient of 0.51 indicates a moderate association
+```{r}
+cor.test(data$coll_black_male_mean, 
+         data$kfr_black_male_mean,
+         method = "pearson")
+```
+
+## 5. Next, run another correlation on the same outcome for a different group (e.g., black females). Write 1-2 sentences comparing your finding here to what you found in question 4.
+- The p-value is also very small, indicating a significant correlation.  
+- The correlation coefficient of 0.64 is higher comparing to the correlation coefficient from question 4, indicating that, in the US counties, the positive association between college degree and income rank for black females than that for black males  
+```{r}
+cor.test(data$coll_black_female_mean, 
+         data$kfr_black_female_mean,
+         method = "pearson")
+```
+
+## 6. Generate a new variable that is the national average of `kfr_white_female_mean` and call it `kfr_white_female_us_mean`. Store the new variable in the dataset. 
+
+```{r}
+#Code your answer here
+```
+
+## 7. Create an indicator variable that evaluates whether the mean income rank for white women in a county (hint: recall that every observation or row is a unique county) is below or above the United States average (hint: use what you created in question 6). Write 1-2 sentences explaining your findings.
+
+```{r}
+#Code your answer here
+```
+
+## 8. Summarize your new variable by reporting how many observations are equal to 0 or 1 (i.e., how many counties are below or above the national average).
+
+```{r}
+#Code your answer here
+```
+
+## 9. Merge `cty_covariates.csv` with `county_outcomes.csv`
+
+Please answer:
+* What variable did you merge on? 
+* How did you determine whether your merge was successful
+
+```{r}
+#Code your answer here
+```
+
+<br>
+<hr>
+<br>
+
+# Part B: Analyzing the Opportunity Insights data
+
+Now we are going to ask you to use your new data skills to answer some higher order questions. You can do this! Read the questions and think about how to apply the tools you've learned to answer them. Please use the "county_outcomes.csv" for this section. You will have the opportunity to use your merged dataset in section 3, if you would like to.
+
+## 1. Using what you've learned, examine differences in outcomes (e.g., household income, fraction working) by group (e.g, female/male or black/white) and explain your findings in 3-4 sentences. 
+
+HINT: you can examine whatever differences you would like, such as differences in mean, etc. 
+
+```{r}
+#Code your answer here
+```
+
+## 2. How does the probability of reaching the top 1% of the national household income distribution (`kfr_top01`) differ by gender in a county of your choice. How does this compare to the national average? Explain your findings in 3-4 sentences. 
+
+HINT: To answer this you will need to create two new variables that average 1) `black_female` and `white_female` and 2) `black_male` and `white_male`. You could also try to get creative and think about how you could use the count '_ n" variables to adjust your means before creating your new variables, though this is not required. You will also need to think about how to subset your data to limit to a single county.
+
+```{r}
+#Code your answer here
+```
+
+## 3. Next, repeat question 2 but looking now for patterns by race. Explain what you find in 3-4 sentences?
+
+```{r}
+#Code your ansewr here
+```
+
+
+<br>
+<hr>
+<br>
+
+# Part C: Sketching out your project
+
+## 1. Limiting your answer to either race or gender, are there any other outcomes that might help explain the relationship you explored in Section B Question 2 or 3 (e.g., do you think `kfr_top01_gender` or `kfr_top01_race` are correlated with other outcomes)? Read over all of the variables in the dataset and provide an intuitive explanation for why you think another outcome could be correlated or related to upward mobility by race or gender. Don't run any code for this question; just think about the relationship. Please explain your hypothesis in 3-4 sentences.  
+
+## 2.	Using the hypothesis you developed in Section C Question 1, provide correlational evidence to test your hypothesis. You are welcome to use outside data that are not included in `country_outcomes.csv`, but this is not required. The goal of this question is to understand what might explain the variation in upward mobility for certain groups of children.   
+
+## 3.	Please consider the county you chose to examine in Section B and think about the mayor of that county. Identify one or two key lessons or takeaways that you might discuss with them about the determinants of economic opportunity (or the potential factors that are associated with individuals probability of reaching the top 1% of the national household income distribution). Mention any important caveats to your conclusions or any additional analyses you might want to conduct to prove your findings.   
+
